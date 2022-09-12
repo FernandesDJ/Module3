@@ -67,28 +67,29 @@ namespace Gr4_Module3_ver_DF
         public static void CreationLot()
         {
             string nomLot,dateLimiteBrut, nomRecette;
-            int quantiter,idRecette = 0;
+            int idRecette = 0;
             DateTime dateLimitTraiter;
-            bool donnéesOK = true;
+            bool donnéesOK;
             
             int etatLot = 1;
 
-            
+
 
             do
             {
-                
+
                 Titre("1) Créer un lot");
 
-                Console.Write("\n".PadRight(10)  +  "Nom: ");
-                Console.Write("\n".PadRight(10)  +  "Date limite de fabrication : ");
-                Console.Write("\n".PadRight(10)  +  "Nom de la recette affiliée (peut être vide): ");
-                Console.Write("\n".PadRight(10)  +  "Quantitée à produire:");
-                
+                Console.Write("\n".PadRight(10) + "Nom: ");
+                Console.Write("\n".PadRight(10) + "Date limite de fabrication (DD/MM/YYYY) : ");
+                Console.Write("\n".PadRight(10) + "Nom de la recette affiliée (peut être vide): ");
+                Console.Write("\n".PadRight(10) + "Quantitée à produire:");
+
 
                 Console.WriteLine("\n\n".PadRight(101, '_'));
 
-                
+                bool quantiterValide;
+
                 Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_NAME_Y);
                 nomLot = Console.ReadLine();
                 Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_DATELIMITE_Y);
@@ -96,61 +97,108 @@ namespace Gr4_Module3_ver_DF
                 Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_RECETTE_Y);
                 nomRecette = Console.ReadLine();
                 Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_QUANTITER_Y);
+                quantiterValide = int.TryParse(Console.ReadLine(),out int quantiter);
 
-                
+                if (quantiterValide == false)
+                    quantiter = 0;
 
                 try
                 {
-                    
+
                     if (nomRecette == "")
                     {
                         nomRecette = null;
                         etatLot = 4;
+                        quantiter = 0;
                     }
                     else
                     {
-                        quantiter = int.Parse(Console.ReadLine());
                         idRecette = DBManager.GetIDFromNameRecette(nomRecette);
                     }
-                    
 
-                    
+
+
                     Console.WriteLine("");
                     dateLimitTraiter = DateTime.Parse(dateLimiteBrut);
 
-      
-                }
-                catch(FormatException ex)
-                {
-                    ErrorMessage(ex.Message);
-                    donnéesOK = false;
-                    
-                }
-                catch(OverflowException ex)
-                {
-                    ErrorMessage(ex.Message);
-                    donnéesOK = false;
-                    
-                }
-                /*catch(MySqlException ex)
-                {
-                    ErrorMessage(ex.Message);
-                    donnéesOK = false;
-                    Console.ReadLine();
-                }*/
 
-                
 
+                    DBManager.CreationLot(nomLot, dateLimitTraiter, quantiter, etatLot, idRecette);
+
+                    donnéesOK = true;
+
+                }
+                catch (FormatException ex)
+                {
+                    ErrorMessage(ex.Message);
+                    donnéesOK = false;
+
+                }
+                catch (OverflowException ex)
+                {
+                    ErrorMessage(ex.Message);
+                    donnéesOK = false;
+
+                }
+                catch (MySqlException ex)
+                {
+                    ErrorMessage(ex.Message);
+                    donnéesOK = false;
+
+                }
 
             } while (!donnéesOK);
+        }
 
-            
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void CreationRecette()
+        {
+            string nomRecette;
+            bool nbreOpValide;
 
-            //DBManager.CreationLot(nomLot, dateLimite, quantiter, nomRecette);
-            
-            
+
+            Titre("2) Créer une Recette");
+
+            Console.Write("\n".PadRight(10) + "Nom de recette: ");
+            Console.Write("\n".PadRight(10) + "Nombre d'opérations: ");
+
+            Console.WriteLine("\n\n".PadRight(101, '_'));
+
+            Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_NAME_Y);
+            nomRecette = Console.ReadLine();
+            Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_DATELIMITE_Y);
+            nbreOpValide = int.TryParse(Console.ReadLine(), out int nbresOp);
+
+            if(nbreOpValide == false || nbresOp > 10 || nbresOp < 1)
+            {
+                ErrorMessage("Veuillez introduire un nombre compris entre 1 et 10");
+            }
+
+            AjouterOpération(nbresOp);
+
+
 
         }
+
+
+
+
+        private static DBManager.oppration[] AjouterOpération(int nombreOpération)
+        {
+            DBManager.oppration[] opération = new DBManager.oppration[nombreOpération];
+
+            Titre($"2.1) Ajouter {nombreOpération} opération");
+
+
+
+
+
+
+            return opération;
+        }
+
 
 
         /// <summary>
@@ -159,22 +207,37 @@ namespace Gr4_Module3_ver_DF
         /// <param name="message"></param>
         private static void ErrorMessage(string message)
         {
+            
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"ERREUR: {message}");
+            Console.WriteLine($"\nERREUR: {message}\nPour recommencer appuyer sur la touche [Enter]");
+            bool erreurValider;
+            do
+            {
+                if(Console.ReadKey(true).Key != ConsoleKey.Enter)
+                {
+                    erreurValider = true;
+                }
+                else
+                {
+                    erreurValider = false;
+                }
+            } while (erreurValider);
+           
             Console.ResetColor();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="title"></param>
-        private static void Titre(string title)
+        /// <param name="titreMenu"></param>
+        private static void Titre(string titreMenu)
         {
             Console.Clear();
 
-            Console.Title = $"Module3/ {title}";
+            Console.Title = $"Module3/ {titreMenu}";
 
-            int calcule = 101 - title.Length;
+
+            int calcule = 101 - titreMenu.Length;
             int reductorForString = 3;
             int reductorForEndTable = 2;
 
@@ -192,7 +255,7 @@ namespace Gr4_Module3_ver_DF
 
             Console.WriteLine(" ".PadRight(100, '_'));
             Console.WriteLine("| ".PadRight(100) + '|');
-            Console.WriteLine("|".PadRight(before, '-') + "{" + title + "}".PadRight(after, '-') + '|');
+            Console.WriteLine("|".PadRight(before, '-') + "{" + titreMenu + "}".PadRight(after, '-') + '|');
             Console.WriteLine("|".PadRight(100, '_') + '|');
 
         }

@@ -852,11 +852,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\david\\Desktop\\Module 3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF.csproj",
+      "projectUniqueName": "C:\\Users\\david\\Desktop\\Module 3\\Module3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF.csproj",
       "projectName": "Gr4_Module3_ver-DF",
-      "projectPath": "C:\\Users\\david\\Desktop\\Module 3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF.csproj",
+      "projectPath": "C:\\Users\\david\\Desktop\\Module 3\\Module3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF.csproj",
       "packagesPath": "C:\\Users\\david\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\david\\Desktop\\Module 3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\obj\\",
+      "outputPath": "C:\\Users\\david\\Desktop\\Module 3\\Module3\\Gr4_Module3_ver-DF\\Gr4_Module3_ver-DF\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
