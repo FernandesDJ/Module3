@@ -16,7 +16,8 @@ namespace Gr4_Module3_ver_DF
     {
         public struct oppration
         {
-            public int id, position,temps;
+            public string nomOpération;
+            public int position,temps;
             public bool cycleVerin, quittance;
         }
 
@@ -109,21 +110,21 @@ namespace Gr4_Module3_ver_DF
         {
             try
             {
-                cmd.CommandText = "INSERT INTO recete VALUES (NULL,@recetteNom,@dateCreation);";
+                cmd.CommandText = "INSERT INTO recette VALUES (NULL,@recetteNom,@dateCreation);";
 
                 cmd.Parameters.AddWithValue("@recetteNom", nomRecette);
                 cmd.Parameters.AddWithValue("@dateCreation", DateTime.Now.ToString("yyyy’-‘MM’-‘dd’ HH’:’mm’:’ss"));
 
                 cmd.ExecuteNonQuery();
 
-                cmd.CommandText = "SELECT ID_RECETTE FROM recette WHERE REC_NOM = @recetteNom;";
-                cmd.Parameters.AddWithValue("@recetteNom", nomRecette);
+
 
             }
             catch(MySqlException ex)
             {
                 Console.WriteLine(ex.Message);
             }
+            Console.WriteLine("Recette créer");
         }
 
         /// <summary>
@@ -139,14 +140,15 @@ namespace Gr4_Module3_ver_DF
         /// </summary>
         /// <param name="idRecette"></param>
         /// <param name="opération"></param>
-        public static void AddOpperation(int idRecette, List<oppration> opération)
+        public static void AddOpperation(int idRecette, oppration[] opération)
         {
             try
             {
                 foreach(oppration value in opération)
                 {
-                    cmd.CommandText = "INSERT INTO operation VALUES(NULL,@position,@temps,@cycleVerin,@quitance,@idRecette);";
+                    cmd.CommandText = "INSERT INTO operation VALUES(NULL,@nom,@position,@temps,@cycleVerin,@quitance,@idRecette);";
 
+                    cmd.Parameters.AddWithValue("@nom", value.nomOpération);
                     cmd.Parameters.AddWithValue("@position",value.position);
                     cmd.Parameters.AddWithValue("@temps", value.temps);
                     cmd.Parameters.AddWithValue("@cycleVerin", value.cycleVerin);
@@ -154,6 +156,8 @@ namespace Gr4_Module3_ver_DF
                     cmd.Parameters.AddWithValue("@idRecette", idRecette);
 
                     cmd.ExecuteNonQuery();
+
+                    cmd.Parameters.Clear();
                 }
             }
             catch(MySqlException ex)
@@ -170,24 +174,33 @@ namespace Gr4_Module3_ver_DF
         /// <returns></returns>
         public static int GetIDFromNameRecette(string nomRecette)
         {
-            int idRecette = 0;
+            int idRecette = -1; 
             try
             {
-                cmd.CommandText = "SELECT ID_RECETTE FROM recette WHERE REC_NOM = @recetteNom;";
-                cmd.Parameters.AddWithValue("@recetteNom", nomRecette);
+                cmd.Parameters.Clear();
+                cmd.CommandText = "SELECT ID_RECETTE FROM recette WHERE REC_NOM = @RecetteNom;";
+                cmd.Parameters.AddWithValue("@RecetteNom", nomRecette);
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
-                    idRecette = reader.GetInt32(0);
+
+                    while(reader.Read())
+                    {
+                        idRecette = reader.GetInt32(0);
+                    }
+
                 }
+                    
                 
             }
             catch(MySqlException ex)
             {
-                Console.Write(ex.Message);
+                Menu.ErrorMessage(ex.Message);
             }
 
             return idRecette;
+
+
         }
 
 

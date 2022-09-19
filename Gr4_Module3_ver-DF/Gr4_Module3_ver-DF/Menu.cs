@@ -8,12 +8,13 @@ namespace Gr4_Module3_ver_DF
     class Menu
     {
 
-        private const int POS_CURSOR_LOT_CREA_X = 57;
+        private const int POS_CURSOR_X = 57;
 
-        private const int SET_CURSOR_LOT_CREA_NAME_Y = 5;
-        private const int SET_CURSOR_LOT_CREA_DATELIMITE_Y = 6;
-        private const int SET_CURSOR_LOT_CREA_RECETTE_Y = 7;
-        private const int SET_CURSOR_LOT_CREA_QUANTITER_Y = 8;
+        private const int SET_CURSOR_Y1 = 5;
+        private const int SET_CURSOR_Y2 = 6;
+        private const int SET_CURSOR_Y3 = 7;
+        private const int SET_CURSOR_Y4 = 8;
+        private const int SET_CURSOR_Y5 = 9;
 
 
         /// <summary>
@@ -90,13 +91,13 @@ namespace Gr4_Module3_ver_DF
 
                 bool quantiterValide;
 
-                Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_NAME_Y);
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
                 nomLot = Console.ReadLine();
-                Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_DATELIMITE_Y);
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);
                 dateLimiteBrut = Console.ReadLine();
-                Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_RECETTE_Y);
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);
                 nomRecette = Console.ReadLine();
-                Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_QUANTITER_Y);
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);
                 quantiterValide = int.TryParse(Console.ReadLine(),out int quantiter);
 
                 if (quantiterValide == false)
@@ -166,9 +167,9 @@ namespace Gr4_Module3_ver_DF
 
             Console.WriteLine("\n\n".PadRight(101, '_'));
 
-            Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_NAME_Y);
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
             nomRecette = Console.ReadLine();
-            Console.SetCursorPosition(POS_CURSOR_LOT_CREA_X, SET_CURSOR_LOT_CREA_DATELIMITE_Y);
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);
             nbreOpValide = int.TryParse(Console.ReadLine(), out int nbresOp);
 
             if(nbreOpValide == false || nbresOp > 10 || nbresOp < 1)
@@ -176,7 +177,12 @@ namespace Gr4_Module3_ver_DF
                 ErrorMessage("Veuillez introduire un nombre compris entre 1 et 10");
             }
 
-            AjouterOpération(nbresOp);
+            DBManager.CreationRecette(nomRecette);
+
+            int idRecette = DBManager.GetIDFromNameRecette(nomRecette);
+
+            DBManager.AddOpperation(idRecette, AjouterOpération(nbresOp));
+
 
 
 
@@ -189,9 +195,71 @@ namespace Gr4_Module3_ver_DF
         {
             DBManager.oppration[] opération = new DBManager.oppration[nombreOpération];
 
-            Titre($"2.1) Ajouter {nombreOpération} opération");
+            string nomOp;
+
+            int position, temps;
+            bool posValide, tempsValide, cycleValide, quittanceValide,cycle,quittance;
+
+            for(int nbre_opération = nombreOpération; nbre_opération > 0 ; nbre_opération-- )
+            {
+               
+
+                do
+                {
+                    Titre($"2.1) Ajouter {nbre_opération} opération");
+                    Console.Write("\n".PadRight(10) + "Nom de l'opération: ");
+                    Console.Write("\n".PadRight(10) + "Position de déplacement (1 à 5): ");
+                    Console.Write("\n".PadRight(10) + "Temps d'attente (0 à 5 s): ");
+                    Console.Write("\n".PadRight(10) + "Cycle des vérins (true/false): ");
+                    Console.Write("\n".PadRight(10) + "Quittance demander (true/false): ");
+
+                    Console.WriteLine("\n\n".PadRight(101, '_'));
 
 
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);                     //Nom de l'opération:
+                    nomOp = Console.ReadLine();
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);                     //Position de déplacement (1 à 5):
+                    posValide = int.TryParse(Console.ReadLine(), out position);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);                     //Temps d'attente (0 à 5 s):
+                    tempsValide = int.TryParse(Console.ReadLine(), out  temps);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);                     //Cycle des vérins (t/f):
+                    cycleValide = bool.TryParse(Console.ReadLine(), out  cycle);
+
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y5);                     //Quittance demander (t/f): 
+                    quittanceValide = bool.TryParse(Console.ReadLine(), out quittance);
+
+
+                    if (position < 1 || position > 5)
+                        posValide = false;
+
+                    if (temps < 0 || temps > 5)
+                        tempsValide = false;
+
+                    if (quittanceValide && cycleValide != true )
+                        ErrorMessage("Veuillez introduire true pour OUI ou false pour NON");
+
+                    if (tempsValide && posValide != true )
+                        ErrorMessage("Veuillez introduire un nombre compris entre 0 et 5");
+
+
+
+                } while (posValide && tempsValide && cycleValide && quittanceValide == false);
+
+
+                opération[nombreOpération - nbre_opération].nomOpération = nomOp;
+                opération[nombreOpération - nbre_opération].position = position;
+                opération[nombreOpération - nbre_opération].temps = temps;
+                opération[nombreOpération - nbre_opération].cycleVerin = cycle;
+                opération[nombreOpération - nbre_opération].quittance = quittance;
+               
+
+
+
+            }
 
 
 
@@ -205,7 +273,7 @@ namespace Gr4_Module3_ver_DF
         /// 
         /// </summary>
         /// <param name="message"></param>
-        private static void ErrorMessage(string message)
+        public static void ErrorMessage(string message)
         {
             
             Console.ForegroundColor = ConsoleColor.Red;
