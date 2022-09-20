@@ -65,6 +65,10 @@ namespace Gr4_Module3_ver_DF
 
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static void CreationLot()
         {
             string nomLot,dateLimiteBrut, nomRecette;
@@ -74,18 +78,14 @@ namespace Gr4_Module3_ver_DF
             
             int etatLot = 1;
 
-
-
             do
             {
-
                 Titre("1) Créer un lot");
 
                 Console.Write("\n".PadRight(10) + "Nom: ");
                 Console.Write("\n".PadRight(10) + "Date limite de fabrication (DD/MM/YYYY) : ");
                 Console.Write("\n".PadRight(10) + "Nom de la recette affiliée (peut être vide): ");
                 Console.Write("\n".PadRight(10) + "Quantitée à produire:");
-
 
                 Console.WriteLine("\n\n".PadRight(101, '_'));
 
@@ -183,89 +183,43 @@ namespace Gr4_Module3_ver_DF
 
             DBManager.AddOpperation(idRecette, AjouterOpération(nbresOp));
 
-
-
-
         }
 
-
-
-
-        private static DBManager.oppration[] AjouterOpération(int nombreOpération)
+        public static void EditerLot()
         {
-            DBManager.oppration[] opération = new DBManager.oppration[nombreOpération];
+            Titre("3) Editer un lot");
 
-            string nomOp;
+            Console.Write("\n".PadRight(10) + "Introduire le nom du lot: ");
 
-            int position, temps;
-            bool posValide, tempsValide, cycleValide, quittanceValide,cycle,quittance;
+            Console.WriteLine("\n\n"+" ".PadRight(101, '_'));
 
-            for(int nbre_opération = nombreOpération; nbre_opération > 0 ; nbre_opération-- )
-            {
-               
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+            string nomLot = Console.ReadLine();
 
-                do
-                {
-                    Titre($"2.1) Ajouter {nbre_opération} opération");
-                    Console.Write("\n".PadRight(10) + "Nom de l'opération: ");
-                    Console.Write("\n".PadRight(10) + "Position de déplacement (1 à 5): ");
-                    Console.Write("\n".PadRight(10) + "Temps d'attente (0 à 5 s): ");
-                    Console.Write("\n".PadRight(10) + "Cycle des vérins (true/false): ");
-                    Console.Write("\n".PadRight(10) + "Quittance demander (true/false): ");
-
-                    Console.WriteLine("\n\n".PadRight(101, '_'));
-
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);                     //Nom de l'opération:
-                    nomOp = Console.ReadLine();
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);                     //Position de déplacement (1 à 5):
-                    posValide = int.TryParse(Console.ReadLine(), out position);
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);                     //Temps d'attente (0 à 5 s):
-                    tempsValide = int.TryParse(Console.ReadLine(), out  temps);
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);                     //Cycle des vérins (t/f):
-                    cycleValide = bool.TryParse(Console.ReadLine(), out  cycle);
-
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y5);                     //Quittance demander (t/f): 
-                    quittanceValide = bool.TryParse(Console.ReadLine(), out quittance);
-
-
-                    if (position < 1 || position > 5)
-                        posValide = false;
-
-                    if (temps < 0 || temps > 5)
-                        tempsValide = false;
-
-                    if (quittanceValide && cycleValide != true )
-                        ErrorMessage("Veuillez introduire true pour OUI ou false pour NON");
-
-                    if (tempsValide && posValide != true )
-                        ErrorMessage("Veuillez introduire un nombre compris entre 0 et 5");
+            DBManager.informationLot[] lotRechercher = DBManager.GetLotInformation(nomLot);
 
 
 
-                } while (posValide && tempsValide && cycleValide && quittanceValide == false);
+            Titre($"3.1 Editer le lot: {nomLot}");
 
+            Console.WriteLine("\n".PadRight(15) + "Choix d'édition".PadRight(50) + "Information du lot");
 
-                opération[nombreOpération - nbre_opération].nomOpération = nomOp;
-                opération[nombreOpération - nbre_opération].position = position;
-                opération[nombreOpération - nbre_opération].temps = temps;
-                opération[nombreOpération - nbre_opération].cycleVerin = cycle;
-                opération[nombreOpération - nbre_opération].quittance = quittance;
-               
+            Console.Write("\n".PadRight(5) + "1) Editer la date Limite de Production".PadRight(45) + "| Date de création:".PadRight(30) + $"{lotRechercher[0].dateDeCreation}");
+            Console.Write("\n".PadRight(5) + "2) Editer la quantiter à produire".PadRight(45) + $"| Date Limite de Production:".PadRight(30) + $"{lotRechercher[0].dateLimiteProd.ToShortDateString()}");
+            Console.Write("\n".PadRight(5) + "3) Changer de recette".PadRight(45) + $"| Quantiter à produire:".PadRight(30) + $"{lotRechercher[0].quantiterAProduire}");
+            Console.Write("\n".PadRight(5) + "4) Supprimer le lot".PadRight(45) + $"| Nom de la recette associée:".PadRight(30) + $"{lotRechercher[0].nomRecette}");
+            Console.Write("\n".PadRight(50) + "| Status du lot:".PadRight(30) + $"{lotRechercher[0].statusLot}");
 
-
-
-            }
+            Console.WriteLine("\n\n".PadRight(101, '_'));
 
 
 
 
-            return opération;
+
         }
+
+
+
 
 
 
@@ -293,6 +247,89 @@ namespace Gr4_Module3_ver_DF
            
             Console.ResetColor();
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nombreOpération"></param>
+        /// <returns></returns>
+        private static DBManager.oppration[] AjouterOpération(int nombreOpération)
+        {
+            DBManager.oppration[] opération = new DBManager.oppration[nombreOpération];
+
+            string nomOp;
+
+            int position, temps;
+            bool posValide, tempsValide, cycleValide, quittanceValide, cycle, quittance;
+
+            for (int nbre_opération = nombreOpération; nbre_opération > 0; nbre_opération--)
+            {
+
+
+                do
+                {
+                    Titre($"2.1) Ajouter {nbre_opération} opération");
+                    Console.Write("\n".PadRight(10) + "Nom de l'opération: ");
+                    Console.Write("\n".PadRight(10) + "Position de déplacement (1 à 5): ");
+                    Console.Write("\n".PadRight(10) + "Temps d'attente (0 à 5 s): ");
+                    Console.Write("\n".PadRight(10) + "Cycle des vérins (true/false): ");
+                    Console.Write("\n".PadRight(10) + "Quittance demander (true/false): ");
+
+                    Console.WriteLine("\n\n".PadRight(101, '_'));
+
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);                     //Nom de l'opération:
+                    nomOp = Console.ReadLine();
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);                     //Position de déplacement (1 à 5):
+                    posValide = int.TryParse(Console.ReadLine(), out position);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);                     //Temps d'attente (0 à 5 s):
+                    tempsValide = int.TryParse(Console.ReadLine(), out temps);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);                     //Cycle des vérins (t/f):
+                    cycleValide = bool.TryParse(Console.ReadLine(), out cycle);
+
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y5);                     //Quittance demander (t/f): 
+                    quittanceValide = bool.TryParse(Console.ReadLine(), out quittance);
+
+
+                    if (position < 1 || position > 5)
+                        posValide = false;
+
+                    if (temps < 0 || temps > 5)
+                        tempsValide = false;
+
+                    if (quittanceValide && cycleValide != true)
+                        ErrorMessage("Veuillez introduire true pour OUI ou false pour NON");
+
+                    if (tempsValide && posValide != true)
+                        ErrorMessage("Veuillez introduire un nombre compris entre 0 et 5");
+
+                    if (temps > 0 && cycle == true)
+                    {
+                        ErrorMessage("Le cycle des vérins ne sera pas effectuer car nous avons un temps d'attente");
+                        cycle = false;
+                    }
+
+
+                } while (posValide && tempsValide && cycleValide && quittanceValide == false);
+
+
+                opération[nombreOpération - nbre_opération].nomOpération = nomOp;
+                opération[nombreOpération - nbre_opération].position = position;
+                opération[nombreOpération - nbre_opération].temps = temps;
+                opération[nombreOpération - nbre_opération].cycleVerin = cycle;
+                opération[nombreOpération - nbre_opération].quittance = quittance;
+
+            }
+
+            return opération;
+        }
+
+
 
         /// <summary>
         /// 

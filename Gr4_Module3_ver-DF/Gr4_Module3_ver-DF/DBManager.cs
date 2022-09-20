@@ -21,6 +21,13 @@ namespace Gr4_Module3_ver_DF
             public bool cycleVerin, quittance;
         }
 
+        public struct informationLot
+        {
+            public string nomRecette,statusLot;
+            public DateTime dateDeCreation,dateLimiteProd;
+            public int quantiterAProduire;
+        }
+
 
         /// <summary>
         /// 
@@ -83,7 +90,7 @@ namespace Gr4_Module3_ver_DF
                 
             try
             {
-
+                cmd.Parameters.Clear();
                 cmd.CommandText = "INSERT INTO lot VALUES (NULL,@lotNom,@dateCreation,@dateLimite,@quantité,@etatLot,@idrecette);";
                     
                 cmd.Parameters.AddWithValue("@lotNom", nomLot);
@@ -110,6 +117,7 @@ namespace Gr4_Module3_ver_DF
         {
             try
             {
+                cmd.Parameters.Clear();
                 cmd.CommandText = "INSERT INTO recette VALUES (NULL,@recetteNom,@dateCreation);";
 
                 cmd.Parameters.AddWithValue("@recetteNom", nomRecette);
@@ -146,6 +154,7 @@ namespace Gr4_Module3_ver_DF
             {
                 foreach(oppration value in opération)
                 {
+                    cmd.Parameters.Clear();
                     cmd.CommandText = "INSERT INTO operation VALUES(NULL,@nom,@position,@temps,@cycleVerin,@quitance,@idRecette);";
 
                     cmd.Parameters.AddWithValue("@nom", value.nomOpération);
@@ -157,7 +166,7 @@ namespace Gr4_Module3_ver_DF
 
                     cmd.ExecuteNonQuery();
 
-                    cmd.Parameters.Clear();
+                    
                 }
             }
             catch(MySqlException ex)
@@ -166,6 +175,47 @@ namespace Gr4_Module3_ver_DF
             }
  
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static informationLot[] GetLotInformation(string nomLot)
+        {
+            informationLot[] lot = new informationLot[1];
+
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "SELECT LOT_CREATION,LOT_DATE_LIMITE,LOT_QUANTITER,REC_NOM,ET_LIBELLE " +
+                                  "FROM `lot` Join recette ON lot.ID_RECETTE = recette.ID_RECETTE " +
+                                  "JOIN etat ON lot.ID_ETAT = etat.ID_ETAT WHERE LOT_NOM = @NomLot;";
+                
+                cmd.Parameters.AddWithValue("@NomLot",nomLot);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        lot[0].dateDeCreation = reader.GetDateTime("LOT_CREATION");
+                        lot[0].dateLimiteProd = reader.GetDateTime("LOT_DATE_LIMITE");
+                        lot[0].quantiterAProduire = reader.GetInt32("LOT_QUANTITER");
+                        lot[0].nomRecette = reader.GetString("REC_NOM");
+                        lot[0].statusLot = reader.GetString("ET_LIBELLE");
+                    }
+                }
+
+
+            }
+            catch(MySqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return lot;
+
+        }
+
+
 
         /// <summary>
         /// 

@@ -16,7 +16,7 @@ namespace Gr4_Module3_ver_DF
             DBManager.Connexion();
 
 
-            Menu.CreationRecette();
+            Menu.EditerLot();
 
 
 
