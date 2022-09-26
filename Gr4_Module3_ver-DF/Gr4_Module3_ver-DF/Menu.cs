@@ -198,28 +198,64 @@ namespace Gr4_Module3_ver_DF
 
             DBManager.informationLot[] lotRechercher = DBManager.GetLotInformation(nomLot);
 
+            bool choixValide;
+            int choix;
 
+            do
+            {
+                Titre($"3) Editer le lot: {nomLot}");
 
-            Titre($"3.1 Editer le lot: {nomLot}");
+                Console.WriteLine("\n".PadRight(15) + "Choix d'édition".PadRight(50) + "Information du lot");
 
-            Console.WriteLine("\n".PadRight(15) + "Choix d'édition".PadRight(50) + "Information du lot");
+                Console.Write("\n".PadRight(5) + "1) Editer la date Limite de Production".PadRight(45) + "| Date de création:".PadRight(30) + $"{lotRechercher[0].dateDeCreation}");
+                Console.Write("\n".PadRight(5) + "2) Editer la quantiter à produire".PadRight(45) + $"| Date Limite de Production:".PadRight(30) + $"{lotRechercher[0].dateLimiteProd.ToShortDateString()}");
+                Console.Write("\n".PadRight(5) + "3) Changer de recette".PadRight(45) + $"| Quantiter à produire:".PadRight(30) + $"{lotRechercher[0].quantiterAProduire}");
+                Console.Write("\n".PadRight(5) + "4) Supprimer le lot".PadRight(45) + $"| Nom de la recette associée:".PadRight(30) + $"{lotRechercher[0].nomRecette}");
+                Console.Write("\n".PadRight(50) + "| Status du lot:".PadRight(30) + $"{lotRechercher[0].statusLot}");
 
-            Console.Write("\n".PadRight(5) + "1) Editer la date Limite de Production".PadRight(45) + "| Date de création:".PadRight(30) + $"{lotRechercher[0].dateDeCreation}");
-            Console.Write("\n".PadRight(5) + "2) Editer la quantiter à produire".PadRight(45) + $"| Date Limite de Production:".PadRight(30) + $"{lotRechercher[0].dateLimiteProd.ToShortDateString()}");
-            Console.Write("\n".PadRight(5) + "3) Changer de recette".PadRight(45) + $"| Quantiter à produire:".PadRight(30) + $"{lotRechercher[0].quantiterAProduire}");
-            Console.Write("\n".PadRight(5) + "4) Supprimer le lot".PadRight(45) + $"| Nom de la recette associée:".PadRight(30) + $"{lotRechercher[0].nomRecette}");
-            Console.Write("\n".PadRight(50) + "| Status du lot:".PadRight(30) + $"{lotRechercher[0].statusLot}");
+                Console.WriteLine("\n\n".PadRight(101, '_'));
 
-            Console.WriteLine("\n\n".PadRight(101, '_'));
+                Console.Write("\nVeuillez introduire votre choix: ");
 
+                choixValide = int.TryParse(Console.ReadLine(), out choix);
 
+                if(choixValide != true || choix < 1 || choix > 4)
+                {
+                    ErrorMessage("Veuillez introduire un chiffre allant de 1 à 4");
+                    choixValide = false;
+                }
 
+            } while (choixValide != true);
+
+            switch(choix)
+            {
+                case 1: EditerLot_DateLimite(nomLot);   break;
+                case 2: EditerLot_Quantiter(nomLot);    break;
+                case 3: EditerLot_Recette(nomLot);      break;
+                case 4: EditerLot_Supprimer(nomLot);    break;
+            }
 
 
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void EditerRecette()
+        {
+            Titre("4) Editer une recette");
 
+            Console.Write("\n".PadRight(10) + "Introduire le nom de la recette: ");
+
+            Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
+
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+            string recette = Console.ReadLine();
+            string dateCreation = DBManager.GetRecetteDateCréation(recette);
+
+
+        }
 
 
 
@@ -328,7 +364,112 @@ namespace Gr4_Module3_ver_DF
 
             return opération;
         }
+        
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void EditerLot_DateLimite(string nomLot)
+        {
+            bool nouvelleDateLimiteValide;
+            DateTime nouvelleDate;
+            do
+            {
+                Titre($"3.1) Modifier la date limite de production du lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + "Nouvelle date limite de fabrication (DD/MM/YYYY) : ");
+                Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+                nouvelleDateLimiteValide = DateTime.TryParse(Console.ReadLine(),out nouvelleDate);
+
+                if (nouvelleDateLimiteValide != true)
+                    ErrorMessage("Veuillez introduire une date avec la syntaxe indiquer");
+
+            } while (nouvelleDateLimiteValide != true);
+
+            DBManager.UpdateLotDateLimite(nomLot, nouvelleDate);
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void EditerLot_Quantiter(string nomLot)
+        {
+            bool nouvelleQuantiterValide;
+            int nouvelleQuantiter;
+
+            do
+            {
+                Titre($"3.2) Modifier la quantiter de production du lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + "Nouvelle quantiter à produire : ");
+                Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+                nouvelleQuantiterValide = int.TryParse(Console.ReadLine(), out nouvelleQuantiter);
+
+                if (nouvelleQuantiterValide != true)
+                    ErrorMessage("Veuillez introduitre une quantiter valide");
+
+            } while (nouvelleQuantiterValide != true);
+
+            DBManager.UpdateLotQuantiter(nomLot, nouvelleQuantiter);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void EditerLot_Recette(string nomLot)
+        {
+            
+            Titre($"3.3) Modifier la recette du lot: {nomLot}");
+
+            Console.WriteLine("\n\n".PadRight(101, '_'));
+            Console.Write("\n".PadRight(10) + "Nouvelle Recette : ");
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+            string nouvelleRecette = Console.ReadLine();
+
+            DBManager.UpdateLotRecette(nomLot, nouvelleRecette);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nomLot"></param>
+        private static void EditerLot_Supprimer(string nomLot)
+        {
+            bool choixValide;
+            do
+            {
+                Titre($"3.4) Supprimer le lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + $"Etes-vous sur de vouloir supprimer le lot {nomLot} ? ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Pour supprimer, introduisez en toutes lettre le mot << Autoriser >> ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Pour annuler la suppression, introduisez en toutes lettre le mot << Annuler >> ");
+                Console.ResetColor();
+                Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+                string choixUtilisateur = Console.ReadLine();
+                
+                if(choixUtilisateur.ToLower() == "autoriser")
+                {
+                    DBManager.DeleteLot(nomLot);
+                    choixValide = true;
+                }
+                else if(choixUtilisateur.ToLower() == "annuler")
+                {
+                    choixValide = true;
+                }
+                else
+                {
+                    ErrorMessage("Veuillez introduire lettre par lettre l'une des deux commandes qui vous sont proposer");
+                    choixValide = false;
+                }
+
+            } while (choixValide != true);
+        }
 
 
         /// <summary>

@@ -254,6 +254,149 @@ namespace Gr4_Module3_ver_DF
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nomLot"></param>
+        /// <param name="nouvelleDateLimite"></param>
+        public static void UpdateLotDateLimite(string nomLot,DateTime nouvelleDateLimite)
+        {
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "UPDATE lot SET LOT_DATE_LIMITE = @NouvelleDateLimite WHERE LOT_NOM = @NomLot;";
+                cmd.Parameters.AddWithValue("@NouvelleDateLimite", nouvelleDateLimite);
+                cmd.Parameters.AddWithValue("@NomLot", nomLot);
+            }
+            catch (MySqlException ex)
+            {
+                Menu.ErrorMessage(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nomLot"></param>
+        /// <param name="nouvelleQuantiter"></param>
+        public static void UpdateLotQuantiter(string nomLot,int nouvelleQuantiter)
+        {
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "UPDATE lot SET LOT_QUANTITER = @NouvelleQuantiter WHERE LOT_NOM = @NomLot;";
+                cmd.Parameters.AddWithValue("@NouvelleQuantiter", nouvelleQuantiter);
+                cmd.Parameters.AddWithValue("@NomLot", nomLot);
+            }
+            catch (MySqlException ex)
+            {
+                Menu.ErrorMessage(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nomLot"></param>
+        /// <param name="nouvelleQuantiter"></param>
+        public static void UpdateLotRecette(string nomLot, string nouvelleRecette)
+        {
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "UPDATE lot SET ID_RECETTE = @NouvelleRecette WHERE LOT_NOM = @NomLot;";
+                cmd.Parameters.AddWithValue("@NouvelleRecette", GetIDFromNameRecette(nouvelleRecette));
+                cmd.Parameters.AddWithValue("@NomLot", nomLot);
+            }
+            catch (MySqlException ex)
+            {
+                Menu.ErrorMessage(ex.Message);
+            }
+        }
+
+
+
+        public static void DeleteLot(string nomLot)
+        {
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "^DELETE FROM lot WHERE LOT_NOM = @NomLotASupprimer;";
+
+                cmd.Parameters.AddWithValue("@NomLotASupprimer", nomLot);
+            }
+            catch (MySqlException ex)
+            {
+                Menu.ErrorMessage(ex.Message);
+            }
+        }
+
+
+        public static List<oppration> GetOpprationsFromRecette(int idRecette)
+        {
+            List<oppration> opération = new List<oppration>();
+
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "SELECT OP_NOM,OP_POSITION,OP_TEMPS, OP_CYCLE_VERIN, OP_QUITTANCE FROM operation WHERE ID_RECETTE = @ID_Recette ";
+
+                cmd.Parameters.AddWithValue("@ID_Recette", idRecette);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    
+                    while (reader.Read())
+                    {
+                        opération.Add(new oppration { nomOpération  = reader.GetString("OP_NOM"),
+                                                      position      = reader.GetInt32("OP_POSITION"),
+                                                      temps         = reader.GetInt32("OP_TEMPS"),
+                                                      cycleVerin    = reader.GetBoolean("OP_CYCLE_VERIN"),
+                                                      quittance     = reader.GetBoolean("OP_QUITTANCE")}); ;
+                        
+                    }
+                }
+
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return opération;
+        }
+
+
+        public static string GetRecetteDateCréation(string nomRecette)
+        {
+            DateTime dateCreation;
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.CommandText = "SELECT REC_DATE_CREATION FROM recette WHERE ID_RECETTE = @ID_Recette ";
+
+                cmd.Parameters.AddWithValue("@ID_Recette", GetIDFromNameRecette(nomRecette));
+
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+
+                    while (reader.Read())
+                    {
+                        dateCreation = reader.GetDateTime("REC_DATE_CREATION");
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            
+            return date;
+        }
+
+
 
     }
 }
