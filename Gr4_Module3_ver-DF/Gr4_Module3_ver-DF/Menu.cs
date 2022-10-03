@@ -29,9 +29,9 @@ namespace Gr4_Module3_ver_DF
             Console.WriteLine("".PadRight(40) + "1) Créer un lot");
             Console.WriteLine("".PadRight(40) + "2) Créer une recette");
             Console.WriteLine("".PadRight(40) + "3) Editer un lot");
-            Console.WriteLine("".PadRight(40) + "4) Editer une recette");
+            Console.WriteLine("".PadRight(40) + "4) Information d'une recette");
             Console.WriteLine("".PadRight(40) + "5) Liste de lot");
-            Console.WriteLine("".PadRight(40) + "6) Historique d'un lot précis");
+            Console.WriteLine("".PadRight(40) + "6) Historique d'un lot");
             Console.WriteLine("".PadRight(40) + "7) Quitter");
             Console.WriteLine(" ".PadRight(101, '_'));
 
@@ -221,6 +221,7 @@ namespace Gr4_Module3_ver_DF
 
                 if(choixValide != true || choix < 1 || choix > 4)
                 {
+
                     ErrorMessage("Veuillez introduire un chiffre allant de 1 à 4");
                     choixValide = false;
                 }
@@ -242,17 +243,54 @@ namespace Gr4_Module3_ver_DF
         /// <summary>
         /// 
         /// </summary>
-        public static void EditerRecette()
+        public static void InformationRecette()
         {
-            Titre("4) Editer une recette");
+            Titre("4) Information d'une recette");
 
             Console.Write("\n".PadRight(10) + "Introduire le nom de la recette: ");
 
             Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
 
             Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
-            string recette = Console.ReadLine();
-            string dateCreation = DBManager.GetRecetteDateCréation(recette);
+            string nomRecette = Console.ReadLine();
+            string dateCreation = DBManager.GetRecetteDateCréation(nomRecette);
+
+
+            Titre($"4) Information pour la recette: {nomRecette}");
+            Console.Write("\n".PadRight(15) + $"Recette créer le: {DBManager.GetRecetteDateCréation(nomRecette)} \n");
+            DBManager.oppration[] opperationRecette = DBManager.GetOpprationsFromRecette(DBManager.GetIDFromNameRecette(nomRecette)).ToArray();
+
+            Console.Write("\n".PadRight(7));
+
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+            Console.Write("N° d'Opération".PadRight(20) +
+                          "Nom".PadRight(10) +
+                          "Position".PadRight(11) +
+                          "Temps d'attente".PadRight(19) +
+                          "Cycle des vérins?".PadRight(20) +
+                          "Quittance?");
+
+            Console.ResetColor();
+
+            for (int nbreOperation = 0; nbreOperation < DBManager.NombreOperationRecette(nomRecette);nbreOperation++)
+            {
+                Console.Write("\n".PadRight(7) + $"Opération N° {nbreOperation+1}".PadRight(20) +    $"{opperationRecette[nbreOperation].nomOpération}".PadRight(13) +
+                                                                                        $"{opperationRecette[nbreOperation].position}".PadRight(14) + 
+                                                                                        $"{opperationRecette[nbreOperation].temps}".PadRight(19) +
+                                                                                        $"{opperationRecette[nbreOperation].cycleVerin}".PadRight(17) +
+                                                                                        $"{opperationRecette[nbreOperation].quittance}");
+            }
+
+            Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
+        }
+
+
+        public static void ListLot()
+        {
+            Titre("5) Liste de lot");
+
+
 
 
         }
