@@ -1,4 +1,17 @@
-﻿using System;
+﻿/***************************************************************************************************************************************************\
+ * Déscription: Cette Class Menu gère tous se qui est de l'affichage. Tous les différents menus et leurs interactions se situent ici que se soit 
+ *              Pour ajouter une recette, ajouter un lot, éditer un lot (modification des quantiters,des dates et de recette), de l'historique et 
+ *              du listing des différents lots.
+ *              
+ * Auteur: Fernandes David
+ * 
+ * Début du projet: 14.03.2022
+ * Fin du projet:   07.11.2022
+ * 
+\***************************************************************************************************************************************************/
+
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
@@ -98,6 +111,7 @@ namespace Gr4_Module3_ver_DF
                 Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);
                 nomRecette = Console.ReadLine();
                 Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);
+
                 quantiterValide = int.TryParse(Console.ReadLine(),out int quantiter);
 
                 if (quantiterValide == false)
@@ -196,7 +210,7 @@ namespace Gr4_Module3_ver_DF
             Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
             string nomLot = Console.ReadLine();
 
-            DBManager.informationLot[] lotRechercher = DBManager.GetLotInformation(nomLot);
+            DBManager.InformationLot[] lotRechercher = DBManager.GetLotInformation(nomLot);
 
             bool choixValide;
             int choix;
@@ -210,8 +224,8 @@ namespace Gr4_Module3_ver_DF
                 Console.Write("\n".PadRight(5) + "1) Editer la date Limite de Production".PadRight(45) + "| Date de création:".PadRight(30) + $"{lotRechercher[0].dateDeCreation}");
                 Console.Write("\n".PadRight(5) + "2) Editer la quantiter à produire".PadRight(45) + $"| Date Limite de Production:".PadRight(30) + $"{lotRechercher[0].dateLimiteProd.ToShortDateString()}");
                 Console.Write("\n".PadRight(5) + "3) Changer de recette".PadRight(45) + $"| Quantiter à produire:".PadRight(30) + $"{lotRechercher[0].quantiterAProduire}");
-                Console.Write("\n".PadRight(5) + "4) Supprimer le lot".PadRight(45) + $"| Nom de la recette associée:".PadRight(30) + $"{lotRechercher[0].nomRecette}");
-                Console.Write("\n".PadRight(50) + "| Status du lot:".PadRight(30) + $"{lotRechercher[0].statusLot}");
+                Console.Write("\n".PadRight(5) + "4) Supprimer le lot".PadRight(45) + $"| Nom de la recette associée:".PadRight(30) + $"{DBManager.GetNameRecetteFromId(lotRechercher[0].idRecette)}");
+                Console.Write("\n".PadRight(5) + "5) Quitter le menu".PadRight(45) + $"| Status du lot:".PadRight(30) + $"{lotRechercher[0].statusLot}");
 
                 Console.WriteLine("\n\n".PadRight(101, '_'));
 
@@ -219,7 +233,7 @@ namespace Gr4_Module3_ver_DF
 
                 choixValide = int.TryParse(Console.ReadLine(), out choix);
 
-                if(choixValide != true || choix < 1 || choix > 4)
+                if(choixValide != true || choix < 1 || choix > 5)
                 {
 
                     ErrorMessage("Veuillez introduire un chiffre allant de 1 à 4");
@@ -234,6 +248,7 @@ namespace Gr4_Module3_ver_DF
                 case 2: EditerLot_Quantiter(nomLot);    break;
                 case 3: EditerLot_Recette(nomLot);      break;
                 case 4: EditerLot_Supprimer(nomLot);    break;
+                case 5: break;
             }
 
 
@@ -258,7 +273,7 @@ namespace Gr4_Module3_ver_DF
 
             Titre($"4) Information pour la recette: {nomRecette}");
             Console.Write("\n".PadRight(15) + $"Recette créer le: {DBManager.GetRecetteDateCréation(nomRecette)} \n");
-            DBManager.oppration[] opperationRecette = DBManager.GetOpprationsFromRecette(DBManager.GetIDFromNameRecette(nomRecette)).ToArray();
+            DBManager.Oppration[] opperationRecette = DBManager.GetOpprationsFromRecette(DBManager.GetIDFromNameRecette(nomRecette)).ToArray();
 
             Console.Write("\n".PadRight(7));
 
@@ -275,14 +290,30 @@ namespace Gr4_Module3_ver_DF
 
             for (int nbreOperation = 0; nbreOperation < DBManager.NombreOperationRecette(nomRecette);nbreOperation++)
             {
-                Console.Write("\n".PadRight(7) + $"Opération N° {nbreOperation+1}".PadRight(20) +    $"{opperationRecette[nbreOperation].nomOpération}".PadRight(13) +
-                                                                                        $"{opperationRecette[nbreOperation].position}".PadRight(14) + 
-                                                                                        $"{opperationRecette[nbreOperation].temps}".PadRight(19) +
-                                                                                        $"{opperationRecette[nbreOperation].cycleVerin}".PadRight(17) +
-                                                                                        $"{opperationRecette[nbreOperation].quittance}");
+                Console.Write("\n".PadRight(7) + $"Opération N° {nbreOperation+1}".PadRight(20) + $"{opperationRecette[nbreOperation].nomOpération}".PadRight(13) +
+                                                                                                  $"{opperationRecette[nbreOperation].position}".PadRight(14) + 
+                                                                                                  $"{opperationRecette[nbreOperation].temps}".PadRight(19) +
+                                                                                                  $"{opperationRecette[nbreOperation].cycleVerin}".PadRight(17) +
+                                                                                                  $"{opperationRecette[nbreOperation].quittance}");
             }
 
             Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
+
+            Console.WriteLine("Pour quitter appuyez sur la touche [ENTER]");
+
+            bool visualisationOk;
+            do
+            {
+                if (Console.ReadKey(true).Key != ConsoleKey.Enter)
+                {
+                    visualisationOk = true;
+                }
+                else
+                {
+                    visualisationOk = false;
+                }
+            } while (visualisationOk);
+
         }
 
 
@@ -292,9 +323,90 @@ namespace Gr4_Module3_ver_DF
 
 
 
+            Console.Write("\n");
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+            Console.Write("Nom du Lot".PadRight(12) +
+                          "Date de création".PadRight(18) +
+                          "Date limite de Prod.".PadRight(22) +
+                          "Quantiter".PadRight(11) +
+                          "Nom de la recette".PadRight(19) +
+                          "Status".PadRight(18) + "\n");
+
+            Console.ResetColor();
+
+            DBManager.InformationLot[] lots = DBManager.ListingLot();
+            for (int nbreLots = 0; nbreLots < lots.Length; nbreLots++)
+            {
+                Console.Write($"\n{lots[nbreLots].nomLot}".PadRight(15) +
+                              $"{lots[nbreLots].dateDeCreation.ToShortDateString()}".PadRight(18) +
+                              $"{lots[nbreLots].dateLimiteProd.ToShortDateString()}".PadRight(22) +
+                              $"{lots[nbreLots].quantiterAProduire}".PadRight(11) +
+                              $"{DBManager.GetNameRecetteFromId(lots[nbreLots].idRecette)}".PadRight(23) +
+                              $"{lots[nbreLots].statusLot}");
+            }
+            Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
+
+            Console.WriteLine("Pour quitter appuyez sur la touche [ENTER]");
+
+            bool visualisationOk;
+            do
+            {
+                if (Console.ReadKey(true).Key != ConsoleKey.Enter)
+                {
+                    visualisationOk = true;
+                }
+                else
+                {
+                    visualisationOk = false;
+                }
+            } while (visualisationOk);
 
         }
 
+
+        public static void HistoriqueLot()
+        {
+            Titre("6) Historique d'un lot");
+
+            Console.Write("\n".PadRight(10) + "Introduire le nom du lot: ");
+            Console.WriteLine("\n\n" + " ".PadRight(101, '_'));
+
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+            string nomLot = Console.ReadLine();
+
+            Titre($"6) Historique du lot: {nomLot}");
+
+            Console.Write("\n");
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+            Console.Write("Date du message".PadRight(21) + "|".PadRight(41) + "Message".PadRight(39)+"\n");
+            Console.ResetColor();
+
+            DBManager.Message[] TabMessage = DBManager.Historique(nomLot);
+
+            for(int index = 0; index < TabMessage.Length; index++)
+            {
+                Console.WriteLine($"{TabMessage[index].dateMessage}".PadRight(25) + 
+                                  $"{TabMessage[index].textMessage}");
+            }
+            Console.WriteLine("\n" + " ".PadRight(101, '_'));
+
+            Console.WriteLine("Pour quitter appuyez sur la touche [ENTER]");
+
+            bool visualisationOk;
+            do
+            {
+                if (Console.ReadKey(true).Key != ConsoleKey.Enter)
+                {
+                    visualisationOk = true;
+                }
+                else
+                {
+                    visualisationOk = false;
+                }
+            } while (visualisationOk);
+        }
 
 
         /// <summary>
@@ -305,7 +417,7 @@ namespace Gr4_Module3_ver_DF
         {
             
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"\nERREUR: {message}\nPour recommencer appuyer sur la touche [Enter]");
+            Console.WriteLine($"\nERREUR: {message}\nPour continuer appuyer sur la touche [Enter]");
             bool erreurValider;
             do
             {
@@ -328,9 +440,9 @@ namespace Gr4_Module3_ver_DF
         /// </summary>
         /// <param name="nombreOpération"></param>
         /// <returns></returns>
-        private static DBManager.oppration[] AjouterOpération(int nombreOpération)
+        private static DBManager.Oppration[] AjouterOpération(int nombreOpération)
         {
-            DBManager.oppration[] opération = new DBManager.oppration[nombreOpération];
+            DBManager.Oppration[] opération = new DBManager.Oppration[nombreOpération];
 
             string nomOp;
 
@@ -388,8 +500,13 @@ namespace Gr4_Module3_ver_DF
                         cycle = false;
                     }
 
+                    if((posValide && tempsValide && cycleValide && quittanceValide) == false)
+                    {
+                        ErrorMessage($"De multiple erreurs de saisi ont été détecter.\nVeuillez recommencer la saisi de l'étape {nbre_opération}");
+                    }
 
-                } while (posValide && tempsValide && cycleValide && quittanceValide == false);
+
+                } while ((posValide && tempsValide && cycleValide && quittanceValide) == false);
 
 
                 opération[nombreOpération - nbre_opération].nomOpération = nomOp;
