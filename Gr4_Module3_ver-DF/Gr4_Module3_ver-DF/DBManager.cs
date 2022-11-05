@@ -60,7 +60,7 @@ namespace Gr4_Module3_ver_DF
         /// Cette chaîne de caractère contients les différentes 
         /// informations nécessaires pour se connecter à la base de données. 
         /// </summary>
-        private static string connectionString = "server=Localhost;port=3306;database=module_3;user=root;password=";
+        private static string connectionString = "server=172.16.151.202;port=3306;database=GR04;user=gr04;password=gr04_bdchariot";
 
         /// <summary>
         /// Création d'un objet MySqlConnection qui contient 
@@ -172,6 +172,7 @@ namespace Gr4_Module3_ver_DF
         /// <returns> Retourne un tableau contenant toutes les informations du lot </returns>
         public static InformationLot[] GetLotInformation(string nomLot)
         {
+            bool contientUneRecette = false;
             InformationLot[] lot = new InformationLot[1];
             using (MySqlCommand cmd = connexion.CreateCommand())
             {
@@ -195,18 +196,20 @@ namespace Gr4_Module3_ver_DF
                             if (!validationRecette)
                             {
                                 lot[0].idRecette = reader.GetInt32("ID_RECETTE");
+                                contientUneRecette = true;
                             }
 
                             lot[0].statusLot = reader.GetString("ET_LIBELLE");
                         }
                     }
-
-
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
+
+                if (contientUneRecette & (lot[0].quantiterAProduire != 0))
+                    UpdateLotEtat(nomLot, 1);
             }
             return lot;
         }
@@ -283,6 +286,33 @@ namespace Gr4_Module3_ver_DF
                     cmd.ExecuteNonQuery();
 
                     InsertMessage($"[UPDATE] Mise à jour de la recette de production", GetIDFromLot(nomLot));
+
+                }
+                catch (MySqlException ex)
+                {
+                    Menu.ErrorMessage(ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Cette fonction met à jour l'état du lot
+        /// </summary>
+        /// <param name="nomLot"> Nom du lot </param>
+        /// <param name="idEtat"> Identifiant de l'état </param>
+        public static void UpdateLotEtat(string nomLot, int idEtat)
+        {
+            using (MySqlCommand cmd = connexion.CreateCommand())
+            {
+                try
+                {
+                    cmd.CommandText = "UPDATE lot SET ID_Etat = @NouvelleEtat WHERE LOT_NOM = @NomLot;";
+                    cmd.Parameters.AddWithValue("@NouvelleEtat", idEtat);
+                    cmd.Parameters.AddWithValue("@NomLot", nomLot);
+
+                    cmd.ExecuteNonQuery();
+
+                    InsertMessage($"[UPDATE] MàJ de l'état du lot", GetIDFromLot(nomLot));
 
                 }
                 catch (MySqlException ex)
@@ -482,32 +512,31 @@ namespace Gr4_Module3_ver_DF
         /// <param name="opération"> Tableau contenant toutes les oppérations a envoyer à la base de données  </param>
         public static void AddOpperation(int idRecette, Oppration[] opération)
         {
-            using (MySqlCommand cmd = connexion.CreateCommand())
+            for(int compteur = 0; compteur <= opération.Length; compteur++)
             {
-                try
+                using (MySqlCommand cmd = connexion.CreateCommand())
                 {
-                    foreach (Oppration value in opération)
+                    try
                     {
+                            cmd.CommandText = "INSERT INTO operation VALUES(NULL,@nom,@position,@temps,@cycleVerin,@quitance,@idRecette);";
 
-                        cmd.CommandText = "INSERT INTO operation VALUES(NULL,@nom,@position,@temps,@cycleVerin,@quitance,@idRecette);";
+                            cmd.Parameters.AddWithValue("@nom", opération[compteur].nomOpération);
+                            cmd.Parameters.AddWithValue("@position", opération[compteur].position);
+                            cmd.Parameters.AddWithValue("@temps", opération[compteur].temps);
+                            cmd.Parameters.AddWithValue("@cycleVerin", opération[compteur].cycleVerin);
+                            cmd.Parameters.AddWithValue("@quitance", opération[compteur].quittance);
+                            cmd.Parameters.AddWithValue("@idRecette", idRecette);
 
-                        cmd.Parameters.AddWithValue("@nom", value.nomOpération);
-                        cmd.Parameters.AddWithValue("@position", value.position);
-                        cmd.Parameters.AddWithValue("@temps", value.temps);
-                        cmd.Parameters.AddWithValue("@cycleVerin", value.cycleVerin);
-                        cmd.Parameters.AddWithValue("@quitance", value.quittance);
-                        cmd.Parameters.AddWithValue("@idRecette", idRecette);
-
-                        cmd.ExecuteNonQuery();
-
+                            cmd.ExecuteNonQuery();
 
                     }
-                }
-                catch (MySqlException ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    catch (MySqlException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
             }
+
         }
 
         /// <summary>
@@ -716,7 +745,7 @@ namespace Gr4_Module3_ver_DF
                 try
                 {
                     cmd.CommandText = "SELECT MESS_DATE,MESS_TEXT FROM lot JOIN message ON " +
-                                       "lot.ID_LOT = message.ID_LOT WHERE LOT_NOM = @nomLot ;";
+                                       "lot.ID_LOT = message.ID_LOT WHERE LOT_NOM = @nomLot ORDER BY MESS_DATE;";
                     cmd.Parameters.AddWithValue("@nomLot", nomLot);
 
                     using (MySqlDataReader reader = cmd.ExecuteReader())

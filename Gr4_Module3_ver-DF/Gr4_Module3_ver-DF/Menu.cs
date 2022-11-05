@@ -20,9 +20,16 @@ namespace Gr4_Module3_ver_DF
 {
     class Menu
     {
-
+        /// <summary>
+        /// Cette constante me permet de placer le curseur 
+        /// de la console à un endroit bien précis en axe X
+        /// </summary>
         private const int POS_CURSOR_X = 57;
 
+        /// <summary>
+        /// Ces constantes me permettent de placer le curseur 
+        /// de la console à un endroit bien précis en axe Y
+        /// </summary>
         private const int SET_CURSOR_Y1 = 5;
         private const int SET_CURSOR_Y2 = 6;
         private const int SET_CURSOR_Y3 = 7;
@@ -30,10 +37,18 @@ namespace Gr4_Module3_ver_DF
         private const int SET_CURSOR_Y5 = 9;
 
 
+        /***************************************************************************************************************************************************\
+
+                                                                            Menu Principal
+
+        \***************************************************************************************************************************************************/
+
         /// <summary>
-        /// 
+        /// Cette fonction me permet d'afficher mon menu principal 
+        /// Et de séléctioner le menu que l'utilisateur veux
+        /// Consulter
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Retourne le choix du menu </returns>
         public static int Principal()
         {
 
@@ -79,8 +94,15 @@ namespace Gr4_Module3_ver_DF
         }
 
 
+        /***************************************************************************************************************************************************\
+
+                                                                        Menu de création de lot
+
+        \***************************************************************************************************************************************************/
+
         /// <summary>
-        /// 
+        /// Cette fonction affiche le menu de création de lot et effectue 
+        /// les différentes actions nécessaire pour créer un lot
         /// </summary>
         public static void CreationLot()
         {
@@ -119,7 +141,6 @@ namespace Gr4_Module3_ver_DF
 
                 try
                 {
-
                     if (nomRecette == "")
                     {
                         nomRecette = null;
@@ -131,48 +152,54 @@ namespace Gr4_Module3_ver_DF
                         idRecette = DBManager.GetIDFromNameRecette(nomRecette);
                     }
 
-
-
                     Console.WriteLine("");
                     dateLimitTraiter = DateTime.Parse(dateLimiteBrut);
-
-
 
                     DBManager.CreationLot(nomLot, dateLimitTraiter, quantiter, etatLot, idRecette);
 
                     donnéesOK = true;
-
                 }
                 catch (FormatException ex)
                 {
                     ErrorMessage(ex.Message);
                     donnéesOK = false;
-
                 }
                 catch (OverflowException ex)
                 {
                     ErrorMessage(ex.Message);
                     donnéesOK = false;
-
                 }
                 catch (MySqlException ex)
                 {
                     ErrorMessage(ex.Message);
                     donnéesOK = false;
-
                 }
 
             } while (!donnéesOK);
         }
 
+
+        /***************************************************************************************************************************************************\
+
+                                                                    Menu de création de recette
+
+        \***************************************************************************************************************************************************/
+
+        /************************************************************\
+
+                                    Public
+
+        \************************************************************/
+
+
         /// <summary>
-        /// 
+        /// Cette fonction affiche le menu de création de recette et effectue 
+        /// les différentes actions nécessaire pour créer une recette
         /// </summary>
         public static void CreationRecette()
         {
             string nomRecette;
             bool nbreOpValide;
-
 
             Titre("2) Créer une Recette");
 
@@ -196,9 +223,109 @@ namespace Gr4_Module3_ver_DF
             int idRecette = DBManager.GetIDFromNameRecette(nomRecette);
 
             DBManager.AddOpperation(idRecette, AjouterOpération(nbresOp));
-
         }
 
+        /************************************************************\
+
+                                Private
+
+        \************************************************************/
+
+        /// <summary>
+        /// Cette fonction permet d'afficher un sous-menu du menu de création de recette
+        /// pour ajouter un nombre prédéfinis précédemment d'opérations
+        /// </summary>
+        /// <param name="nombreOpération"> Le nombre d'opérations à créer </param>
+        /// <returns> Retourne un tableau contenant toutes les informations des opérations créer </returns>
+        private static DBManager.Oppration[] AjouterOpération(int nombreOpération)
+        {
+            DBManager.Oppration[] opération = new DBManager.Oppration[nombreOpération];
+
+            string nomOp;
+
+            int position, temps;
+            bool posValide, tempsValide, cycleValide, quittanceValide, cycle, quittance;
+
+            for (int nbre_opération = nombreOpération; nbre_opération > 0; nbre_opération--)
+            {
+                do
+                {
+                    Titre($"2.1) Ajouter {nbre_opération} opération");
+                    Console.Write("\n".PadRight(10) + "Nom de l'opération: ");
+                    Console.Write("\n".PadRight(10) + "Position de déplacement (1 à 5): ");
+                    Console.Write("\n".PadRight(10) + "Temps d'attente (0 à 5 s): ");
+                    Console.Write("\n".PadRight(10) + "Cycle des vérins (true/false): ");
+                    Console.Write("\n".PadRight(10) + "Quittance demander (true/false): ");
+
+                    Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);                     //Nom de l'opération:
+                    nomOp = Console.ReadLine();
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);                     //Position de déplacement (1 à 5):
+                    posValide = int.TryParse(Console.ReadLine(), out position);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);                     //Temps d'attente (0 à 5 s):
+                    tempsValide = int.TryParse(Console.ReadLine(), out temps);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);                     //Cycle des vérins (t/f):
+                    cycleValide = bool.TryParse(Console.ReadLine(), out cycle);
+
+                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y5);                     //Quittance demander (t/f): 
+                    quittanceValide = bool.TryParse(Console.ReadLine(), out quittance);
+
+                    if (position < 1 || position > 5)
+                        posValide = false;
+
+                    if (temps < 0 || temps > 5)
+                        tempsValide = false;
+
+                    if (quittanceValide && cycleValide != true)
+                        ErrorMessage("Veuillez introduire true pour OUI ou false pour NON");
+
+                    if (tempsValide && posValide != true)
+                        ErrorMessage("Veuillez introduire un nombre compris entre 0 et 5");
+
+                    if (temps > 0 && cycle == true)
+                    {
+                        ErrorMessage("Le cycle des vérins ne sera pas effectuer car nous avons un temps d'attente");
+                        cycle = false;
+                    }
+
+                    if ((posValide && tempsValide && cycleValide && quittanceValide) == false)
+                    {
+                        ErrorMessage($"De multiple erreurs de saisi ont été détecter.\nVeuillez recommencer la saisi de l'étape {nbre_opération}");
+                    }
+
+                } while ((posValide && tempsValide && cycleValide && quittanceValide) == false);
+
+                opération[nombreOpération - nbre_opération].nomOpération = nomOp;
+                opération[nombreOpération - nbre_opération].position = position;
+                opération[nombreOpération - nbre_opération].temps = temps;
+                opération[nombreOpération - nbre_opération].cycleVerin = cycle;
+                opération[nombreOpération - nbre_opération].quittance = quittance;
+            }
+            return opération;
+        }
+
+
+        /***************************************************************************************************************************************************\
+
+                                                                      Menu modification de lot
+
+        \***************************************************************************************************************************************************/
+
+        /************************************************************\
+
+                                Public
+
+        \************************************************************/
+
+
+        /// <summary>
+        /// Cette fonction affiche le menu de modification de lot et propose 
+        /// les différentes modification possible
+        /// </summary>
         public static void EditerLot()
         {
             Titre("3) Editer un lot");
@@ -250,13 +377,139 @@ namespace Gr4_Module3_ver_DF
                 case 4: EditerLot_Supprimer(nomLot);    break;
                 case 5: break;
             }
-
-
         }
+
+        /************************************************************\
+
+                                 Private
+
+        \************************************************************/
 
 
         /// <summary>
-        /// 
+        /// Cette fonction permet d'afficher le sous-menu du menu de modification de lot
+        /// et d'éditer la date limite de production
+        /// </summary>
+        /// <param name="nomLot"> Nom du lot à éditer la date limite de production </param>
+        private static void EditerLot_DateLimite(string nomLot)
+        {
+            bool nouvelleDateLimiteValide;
+            DateTime nouvelleDate;
+            do
+            {
+                Titre($"3.1) Modifier la date limite de production du lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + "Nouvelle date limite de fabrication (DD/MM/YYYY) : ");
+                Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X+3, SET_CURSOR_Y1);
+                nouvelleDateLimiteValide = DateTime.TryParse(Console.ReadLine(), out nouvelleDate);
+
+                if (nouvelleDateLimiteValide != true)
+                    ErrorMessage("Veuillez introduire une date avec la syntaxe indiquer");
+
+            } while (nouvelleDateLimiteValide != true);
+
+            DBManager.UpdateLotDateLimite(nomLot, nouvelleDate);
+
+        }
+
+        /// <summary>
+        /// Cette fonction permet d'afficher le sous-menu du menu de modification de lot
+        /// et d'éditer la quantiter de pièce à produire
+        /// </summary>
+        /// <param name="nomLot"> Nom du lot à éditer la quantiter de pièce à produire </param>
+        private static void EditerLot_Quantiter(string nomLot)
+        {
+            bool nouvelleQuantiterValide;
+            int nouvelleQuantiter;
+
+            do
+            {
+                Titre($"3.2) Modifier la quantiter de production du lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + "Nouvelle quantiter à produire : ");
+                Console.WriteLine("\n\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+                nouvelleQuantiterValide = int.TryParse(Console.ReadLine(), out nouvelleQuantiter);
+
+                if (nouvelleQuantiterValide != true)
+                    ErrorMessage("Veuillez introduitre une quantiter valide");
+
+            } while (nouvelleQuantiterValide != true);
+
+            DBManager.UpdateLotQuantiter(nomLot, nouvelleQuantiter);
+        }
+
+        /// <summary>
+        /// Cette fonction permet d'afficher le sous-menu du menu de modification de lot
+        /// et d'éditer la recette associé au lot
+        /// </summary>
+        /// <param name="nomLot"> Nom du lot à éditer la recette associé au lot </param>
+        private static void EditerLot_Recette(string nomLot)
+        {
+
+            Titre($"3.3) Modifier la recette du lot: {nomLot}");
+
+           
+            Console.Write("\n".PadRight(10) + "Nouvelle Recette : ");
+            Console.WriteLine("\n\n".PadRight(101, '_'));
+            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+            string nouvelleRecette = Console.ReadLine();
+
+            DBManager.UpdateLotRecette(nomLot, nouvelleRecette);
+        }
+
+        /// <summary>
+        /// Cette fonction permet d'afficher le sous-menu du menu de modification de lot
+        /// et de supprimer celui-ci
+        /// </summary>
+        /// <param name="nomLot"> Nom du lot à supprimer </param>
+        private static void EditerLot_Supprimer(string nomLot)
+        {
+            bool choixValide;
+            do
+            {
+                Titre($"3.4) Supprimer le lot: {nomLot}");
+                Console.Write("\n".PadRight(10) + $"Etes-vous sur de vouloir supprimer le lot {nomLot} : ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n\nPour supprimer, introduisez en toutes lettre le mot << Autoriser >> ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Pour annuler la suppression, introduisez en toutes lettre le mot << Annuler >> ");
+                Console.ResetColor();
+                Console.WriteLine("\n".PadRight(101, '_'));
+
+                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
+                string choixUtilisateur = Console.ReadLine();
+
+                if (choixUtilisateur.ToLower() == "autoriser")
+                {
+                    DBManager.DeleteLot(nomLot);
+                    choixValide = true;
+                }
+                else if (choixUtilisateur.ToLower() == "annuler")
+                {
+                    choixValide = true;
+                }
+                else
+                {
+                    ErrorMessage("Veuillez introduire lettre par lettre l'une des deux commandes qui vous sont proposer");
+                    choixValide = false;
+                }
+
+            } while (choixValide != true);
+        }
+
+
+        /***************************************************************************************************************************************************\
+
+                                                              Menu d'affichage d'une recette
+
+        \***************************************************************************************************************************************************/
+
+
+        /// <summary>
+        /// Cette fonction affiche les différentes information contenue dans 
+        /// une recette sous forme d'un tableau.
         /// </summary>
         public static void InformationRecette()
         {
@@ -269,7 +522,6 @@ namespace Gr4_Module3_ver_DF
             Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
             string nomRecette = Console.ReadLine();
             string dateCreation = DBManager.GetRecetteDateCréation(nomRecette);
-
 
             Titre($"4) Information pour la recette: {nomRecette}");
             Console.Write("\n".PadRight(15) + $"Recette créer le: {DBManager.GetRecetteDateCréation(nomRecette)} \n");
@@ -313,15 +565,23 @@ namespace Gr4_Module3_ver_DF
                     visualisationOk = false;
                 }
             } while (visualisationOk);
-
         }
 
 
+        /***************************************************************************************************************************************************\
+
+                                                              Menu d'affichage de tous les lots
+
+        \***************************************************************************************************************************************************/
+
+
+        /// <summary>
+        /// Cette fonction affiche les différentes informations 
+        /// de tous les lots présent dans la base de données
+        /// </summary>
         public static void ListLot()
         {
             Titre("5) Liste de lot");
-
-
 
             Console.Write("\n");
             Console.BackgroundColor = ConsoleColor.DarkGray;
@@ -361,10 +621,20 @@ namespace Gr4_Module3_ver_DF
                     visualisationOk = false;
                 }
             } while (visualisationOk);
-
         }
 
 
+        /***************************************************************************************************************************************************\
+
+                                                              Menu d'affichage de l'historique d'un lot
+
+        \***************************************************************************************************************************************************/
+
+
+        /// <summary>
+        /// Cette fonction affiche tous les message lié à un lot 
+        /// de sa création à la fin de ça production.
+        /// </summary>
         public static void HistoriqueLot()
         {
             Titre("6) Historique d'un lot");
@@ -380,8 +650,9 @@ namespace Gr4_Module3_ver_DF
             Console.Write("\n");
             Console.BackgroundColor = ConsoleColor.DarkGray;
 
-            Console.Write("Date du message".PadRight(21) + "|".PadRight(41) + "Message".PadRight(39)+"\n");
+            Console.Write("Date du message".PadRight(21) + "|".PadRight(41) + "Message".PadRight(39));
             Console.ResetColor();
+            Console.WriteLine("");
 
             DBManager.Message[] TabMessage = DBManager.Historique(nomLot);
 
@@ -409,13 +680,20 @@ namespace Gr4_Module3_ver_DF
         }
 
 
+        /***************************************************************************************************************************************************\
+
+                                                              Affichage + validation des messages d'erreur
+
+        \***************************************************************************************************************************************************/
+
         /// <summary>
-        /// 
+        /// Cette fonction affiche les message d'erreur en rouge 
+        /// et attend une action de l'utilisateur pour valider les messages 
+        /// d'erreur
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message"> Message d'erreur à afficher </param>
         public static void ErrorMessage(string message)
         {
-            
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"\nERREUR: {message}\nPour continuer appuyer sur la touche [Enter]");
             bool erreurValider;
@@ -435,208 +713,23 @@ namespace Gr4_Module3_ver_DF
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nombreOpération"></param>
-        /// <returns></returns>
-        private static DBManager.Oppration[] AjouterOpération(int nombreOpération)
-        {
-            DBManager.Oppration[] opération = new DBManager.Oppration[nombreOpération];
+        /***************************************************************************************************************************************************\
 
-            string nomOp;
+                                                      Fonction de génération de titre automatique
 
-            int position, temps;
-            bool posValide, tempsValide, cycleValide, quittanceValide, cycle, quittance;
-
-            for (int nbre_opération = nombreOpération; nbre_opération > 0; nbre_opération--)
-            {
-
-
-                do
-                {
-                    Titre($"2.1) Ajouter {nbre_opération} opération");
-                    Console.Write("\n".PadRight(10) + "Nom de l'opération: ");
-                    Console.Write("\n".PadRight(10) + "Position de déplacement (1 à 5): ");
-                    Console.Write("\n".PadRight(10) + "Temps d'attente (0 à 5 s): ");
-                    Console.Write("\n".PadRight(10) + "Cycle des vérins (true/false): ");
-                    Console.Write("\n".PadRight(10) + "Quittance demander (true/false): ");
-
-                    Console.WriteLine("\n\n".PadRight(101, '_'));
-
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);                     //Nom de l'opération:
-                    nomOp = Console.ReadLine();
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y2);                     //Position de déplacement (1 à 5):
-                    posValide = int.TryParse(Console.ReadLine(), out position);
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y3);                     //Temps d'attente (0 à 5 s):
-                    tempsValide = int.TryParse(Console.ReadLine(), out temps);
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y4);                     //Cycle des vérins (t/f):
-                    cycleValide = bool.TryParse(Console.ReadLine(), out cycle);
-
-
-                    Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y5);                     //Quittance demander (t/f): 
-                    quittanceValide = bool.TryParse(Console.ReadLine(), out quittance);
-
-
-                    if (position < 1 || position > 5)
-                        posValide = false;
-
-                    if (temps < 0 || temps > 5)
-                        tempsValide = false;
-
-                    if (quittanceValide && cycleValide != true)
-                        ErrorMessage("Veuillez introduire true pour OUI ou false pour NON");
-
-                    if (tempsValide && posValide != true)
-                        ErrorMessage("Veuillez introduire un nombre compris entre 0 et 5");
-
-                    if (temps > 0 && cycle == true)
-                    {
-                        ErrorMessage("Le cycle des vérins ne sera pas effectuer car nous avons un temps d'attente");
-                        cycle = false;
-                    }
-
-                    if((posValide && tempsValide && cycleValide && quittanceValide) == false)
-                    {
-                        ErrorMessage($"De multiple erreurs de saisi ont été détecter.\nVeuillez recommencer la saisi de l'étape {nbre_opération}");
-                    }
-
-
-                } while ((posValide && tempsValide && cycleValide && quittanceValide) == false);
-
-
-                opération[nombreOpération - nbre_opération].nomOpération = nomOp;
-                opération[nombreOpération - nbre_opération].position = position;
-                opération[nombreOpération - nbre_opération].temps = temps;
-                opération[nombreOpération - nbre_opération].cycleVerin = cycle;
-                opération[nombreOpération - nbre_opération].quittance = quittance;
-
-            }
-
-            return opération;
-        }
-        
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static void EditerLot_DateLimite(string nomLot)
-        {
-            bool nouvelleDateLimiteValide;
-            DateTime nouvelleDate;
-            do
-            {
-                Titre($"3.1) Modifier la date limite de production du lot: {nomLot}");
-                Console.Write("\n".PadRight(10) + "Nouvelle date limite de fabrication (DD/MM/YYYY) : ");
-                Console.WriteLine("\n\n".PadRight(101, '_'));
-
-                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
-                nouvelleDateLimiteValide = DateTime.TryParse(Console.ReadLine(),out nouvelleDate);
-
-                if (nouvelleDateLimiteValide != true)
-                    ErrorMessage("Veuillez introduire une date avec la syntaxe indiquer");
-
-            } while (nouvelleDateLimiteValide != true);
-
-            DBManager.UpdateLotDateLimite(nomLot, nouvelleDate);
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static void EditerLot_Quantiter(string nomLot)
-        {
-            bool nouvelleQuantiterValide;
-            int nouvelleQuantiter;
-
-            do
-            {
-                Titre($"3.2) Modifier la quantiter de production du lot: {nomLot}");
-                Console.Write("\n".PadRight(10) + "Nouvelle quantiter à produire : ");
-                Console.WriteLine("\n\n".PadRight(101, '_'));
-
-                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
-                nouvelleQuantiterValide = int.TryParse(Console.ReadLine(), out nouvelleQuantiter);
-
-                if (nouvelleQuantiterValide != true)
-                    ErrorMessage("Veuillez introduitre une quantiter valide");
-
-            } while (nouvelleQuantiterValide != true);
-
-            DBManager.UpdateLotQuantiter(nomLot, nouvelleQuantiter);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static void EditerLot_Recette(string nomLot)
-        {
-            
-            Titre($"3.3) Modifier la recette du lot: {nomLot}");
-
-            Console.WriteLine("\n\n".PadRight(101, '_'));
-            Console.Write("\n".PadRight(10) + "Nouvelle Recette : ");
-            Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
-            string nouvelleRecette = Console.ReadLine();
-
-            DBManager.UpdateLotRecette(nomLot, nouvelleRecette);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nomLot"></param>
-        private static void EditerLot_Supprimer(string nomLot)
-        {
-            bool choixValide;
-            do
-            {
-                Titre($"3.4) Supprimer le lot: {nomLot}");
-                Console.Write("\n".PadRight(10) + $"Etes-vous sur de vouloir supprimer le lot {nomLot} ? ");
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Pour supprimer, introduisez en toutes lettre le mot << Autoriser >> ");
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Pour annuler la suppression, introduisez en toutes lettre le mot << Annuler >> ");
-                Console.ResetColor();
-                Console.WriteLine("\n\n".PadRight(101, '_'));
-
-                Console.SetCursorPosition(POS_CURSOR_X, SET_CURSOR_Y1);
-                string choixUtilisateur = Console.ReadLine();
-                
-                if(choixUtilisateur.ToLower() == "autoriser")
-                {
-                    DBManager.DeleteLot(nomLot);
-                    choixValide = true;
-                }
-                else if(choixUtilisateur.ToLower() == "annuler")
-                {
-                    choixValide = true;
-                }
-                else
-                {
-                    ErrorMessage("Veuillez introduire lettre par lettre l'une des deux commandes qui vous sont proposer");
-                    choixValide = false;
-                }
-
-            } while (choixValide != true);
-        }
+        \***************************************************************************************************************************************************/
 
 
         /// <summary>
-        /// 
+        /// Fonction permetant de générer le bloc "titre" de mes menus avec le nom
+        /// du menu automatiquement centrer
         /// </summary>
-        /// <param name="titreMenu"></param>
+        /// <param name="title"> Nom du menu </param>
         private static void Titre(string titreMenu)
         {
             Console.Clear();
 
             Console.Title = $"Module3/ {titreMenu}";
-
 
             int calcule = 101 - titreMenu.Length;
             int reductorForString = 3;
@@ -648,18 +741,13 @@ namespace Gr4_Module3_ver_DF
                 reductorForEndTable = 1;
             }
 
-
             int before = (calcule - reductorForString) / 2;
-
             int after = before + reductorForEndTable;
-
 
             Console.WriteLine(" ".PadRight(100, '_'));
             Console.WriteLine("| ".PadRight(100) + '|');
             Console.WriteLine("|".PadRight(before, '-') + "{" + titreMenu + "}".PadRight(after, '-') + '|');
             Console.WriteLine("|".PadRight(100, '_') + '|');
-
         }
-
     }
 }
